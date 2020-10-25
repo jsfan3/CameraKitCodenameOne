@@ -13,6 +13,8 @@ import com.codename1.impl.android.AndroidImplementation;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import com.codename1.io.FileSystemStorage;
 
@@ -25,12 +27,15 @@ import co.infinum.goldeneye.config.CameraInfo;
 import co.infinum.goldeneye.models.Facing;
 import co.infinum.goldeneye.models.FlashMode;
 import co.infinum.goldeneye.models.FocusMode;
+import co.infinum.goldeneye.models.PreviewScale;
 import co.infinum.goldeneye.models.VideoQuality;
 import co.infinum.goldeneye.models.Size;
 
 
 public class CameraNativeAccessImpl {
     private int mode;
+    private int width;
+    private int height;
     private GoldenEye goldenEye;
     private TextureView view;
     private boolean started;
@@ -153,7 +158,9 @@ public class CameraNativeAccessImpl {
                     f = param.substring(7);
                 }
                 final File file = new File(f);
-
+                if (goldenEye.getConfig() != null) {
+                    goldenEye.getConfig().setPreviewScale(PreviewScale.AUTO_FILL);
+                };
                 goldenEye.startRecording(file, new VideoCallback() {
                     @Override
                     public void onVideoRecorded(File file) {
@@ -241,12 +248,15 @@ public class CameraNativeAccessImpl {
     }
 
     public int getFacing() {
-        switch(goldenEye.getConfig().getFacing()) {
-            case BACK:
-                return 0;
-            default:
-                return 1;
+        if (goldenEye.getConfig() != null) {
+            switch (goldenEye.getConfig().getFacing()) {
+                case BACK:
+                    return 0;
+                default:
+                    return 1;
+            }
         }
+        return 1; // fallback for errors
     }
 
     public boolean isFacingFront() {
@@ -277,6 +287,16 @@ public class CameraNativeAccessImpl {
                                 return;
                             }
                             goldenEye.open(view, cam, initCallback);
+                            Timer t = new Timer();
+                            t.schedule(new TimerTask() {
+                                @Override
+                                public void run() {
+                                    if (goldenEye.getConfig() != null && width > 0 && height > 0) {
+                                        goldenEye.getConfig().setPreviewSize(new Size(width, height));
+                                        goldenEye.getConfig().setPictureSize(new Size(width, height));
+                                    }
+                                }
+                            }, 500L);
                         }
                         break;
                     default:
@@ -295,6 +315,16 @@ public class CameraNativeAccessImpl {
                                 return;
                             }
                             goldenEye.open(view, cam, initCallback);
+                            Timer t = new Timer();
+                            t.schedule(new TimerTask() {
+                                @Override
+                                public void run() {
+                                    if (goldenEye.getConfig() != null && width > 0 && height > 0) {
+                                        goldenEye.getConfig().setPreviewSize(new Size(width, height));
+                                        goldenEye.getConfig().setPictureSize(new Size(width, height));
+                                    }
+                                }
+                            }, 500L);
                         }
 
                 }
@@ -450,8 +480,13 @@ public class CameraNativeAccessImpl {
     public void setPictureSize(final int w, final int h) {
         AndroidNativeUtil.getActivity().runOnUiThread(new Runnable() {
             public void run() {
-                
-                goldenEye.getConfig().setPictureSize(new Size(w, h));
+                width = w;
+                height = h;
+                if (goldenEye.getConfig() != null) {
+                    // If you call GoldenEye.config before InitCallback#onReady is dispatched, returned config will be null
+                    goldenEye.getConfig().setPreviewSize(new Size(width, height));
+                    goldenEye.getConfig().setPictureSize(new Size(width, height));
+                }
             }
         });
     }

@@ -145,6 +145,9 @@ public class CameraNativeAccessImpl implements com.codename1.camerakit.impl.Came
         }
         return getWebcam().getViewSize().height;
     }
+
+    public void setPictureSize(int param, int param1) {
+    }
     
     public int getPreviewWidth() {
         if (noWebcam) {

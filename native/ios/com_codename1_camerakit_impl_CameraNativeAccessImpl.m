@@ -45,6 +45,9 @@ extern JAVA_OBJECT nsDataToByteArr(NSData *data);
     return previewLayer != nil;
 }
 
+-(void)setPictureSize:(int)param param1:(int)param1{
+}
+
 -(void)setMethod:(int)param{
     self.method = param;
 }

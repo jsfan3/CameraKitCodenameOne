@@ -256,4 +256,8 @@ public class CameraKit implements Constants {
         }
         return true;
     }
+    
+    public void setPictureSize(int w, int h) {
+        cma.setPictureSize(w, h);
+    }
 }
