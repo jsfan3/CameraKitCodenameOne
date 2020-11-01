@@ -61,13 +61,18 @@ public class CameraNativeAccessImpl {
         AndroidImplementation.runOnUiThreadAndBlock(new Runnable() {
             @Override
             public void run() {
-                if (view == null) {
-                    goldenEye = new GoldenEye.Builder(AndroidNativeUtil.getActivity()).build();
-                    view = new TextureView(AndroidNativeUtil.getContext());
+                try {
+                    if (view == null) {
+                        goldenEye = new GoldenEye.Builder(AndroidNativeUtil.getActivity()).build();
+                        view = new TextureView(AndroidNativeUtil.getContext());
 
+                    }
+                    goldenEye.open(view, goldenEye.getAvailableCameras().get(0), initCallback);
+                } catch (Exception ex) {
+                    Log.p("ERROR IN STARTING THE CAMERA");
+                    Log.e(ex);
+                    Log.sendLogAsync();
                 }
-                goldenEye.open(view, goldenEye.getAvailableCameras().get(0), initCallback);
-
             }
         });
     }
