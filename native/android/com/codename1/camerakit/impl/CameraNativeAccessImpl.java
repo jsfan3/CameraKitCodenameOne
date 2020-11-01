@@ -1,6 +1,5 @@
 package com.codename1.camerakit.impl;
 
-
 import android.Manifest;
 import android.graphics.Bitmap;
 import android.media.MediaRecorder;
@@ -30,9 +29,10 @@ import co.infinum.goldeneye.models.FocusMode;
 import co.infinum.goldeneye.models.PreviewScale;
 import co.infinum.goldeneye.models.VideoQuality;
 import co.infinum.goldeneye.models.Size;
-
+import com.codename1.io.Log;
 
 public class CameraNativeAccessImpl {
+
     private int mode;
     private int width;
     private int height;
@@ -52,8 +52,6 @@ public class CameraNativeAccessImpl {
         }
     };
 
-
-
     public void start() {
         if (!AndroidNativeUtil.checkForPermission(android.Manifest.permission.CAMERA, "This application requires permission to use your camera")) {
             CameraCallbacks.onError(null, "Permission to use camera denied", "Permission to use camera denied");
@@ -63,16 +61,12 @@ public class CameraNativeAccessImpl {
         AndroidImplementation.runOnUiThreadAndBlock(new Runnable() {
             @Override
             public void run() {
-                if(view == null) {
+                if (view == null) {
                     goldenEye = new GoldenEye.Builder(AndroidNativeUtil.getActivity()).build();
                     view = new TextureView(AndroidNativeUtil.getContext());
 
-
-
-
                 }
                 goldenEye.open(view, goldenEye.getAvailableCameras().get(0), initCallback);
-
 
             }
         });
@@ -88,7 +82,7 @@ public class CameraNativeAccessImpl {
     }
 
     public boolean isStarted() {
-        if(view == null) {
+        if (view == null) {
             return false;
         }
         return started;
@@ -115,25 +109,30 @@ public class CameraNativeAccessImpl {
     }
 
     public int getFlash() {
-
-        /*
+        try {
+            /*
             In com.codename1.camerakit.Constants.java:
             public static final int FLASH_OFF = 0;
             public static final int FLASH_ON = 1;
             public static final int FLASH_AUTO = 2;
             public static final int FLASH_TORCH = 3;
 
-         */
+             */
 
-        switch (goldenEye.getConfig().getFlashMode()) {
-            case ON:
-                return 1;
-            case OFF:
-                return 0;
-            case AUTO:
-                return 2;
-            case TORCH:
-                return 3;
+            switch (goldenEye.getConfig().getFlashMode()) {
+                case ON:
+                    return 1;
+                case OFF:
+                    return 0;
+                case AUTO:
+                    return 2;
+                case TORCH:
+                    return 3;
+            }
+            return 0;
+        } catch (Exception ex) {
+            Log.e(ex);
+            Log.sendLogAsync();
         }
         return 0;
     }
@@ -141,7 +140,12 @@ public class CameraNativeAccessImpl {
     public void setZoom(final float param) {
         AndroidNativeUtil.getActivity().runOnUiThread(new Runnable() {
             public void run() {
-                goldenEye.getConfig().setZoom((int)param);
+                try {
+                    goldenEye.getConfig().setZoom((int) param);
+                } catch (Exception ex) {
+                    Log.e(ex);
+                    Log.sendLogAsync();
+                }
             }
         });
     }
@@ -159,7 +163,12 @@ public class CameraNativeAccessImpl {
                 }
                 final File file = new File(f);
                 if (goldenEye.getConfig() != null) {
-                    goldenEye.getConfig().setPreviewScale(PreviewScale.AUTO_FILL);
+                    try {
+                        goldenEye.getConfig().setPreviewScale(PreviewScale.AUTO_FILL);
+                    } catch (Exception ex) {
+                        Log.e(ex);
+                        Log.sendLogAsync();
+                    }
                 };
                 goldenEye.startRecording(file, new VideoCallback() {
                     @Override
@@ -187,25 +196,30 @@ public class CameraNativeAccessImpl {
          */
         AndroidNativeUtil.getActivity().runOnUiThread(new Runnable() {
             public void run() {
-                switch (param) {
-                    case 0:
+                try {
+                    switch (param) {
+                        case 0:
 
-                        //view.setFocusable(false);
-                        goldenEye.getConfig().setFocusMode(FocusMode.FIXED);
-                        goldenEye.getConfig().setTapToFocusEnabled(false);
-                        break;
-                    case 1:
-                        goldenEye.getConfig().setFocusMode(FocusMode.CONTINUOUS_VIDEO);
-                        goldenEye.getConfig().setTapToFocusEnabled(false);
-                        break;
-                    case 2:
-                       goldenEye.getConfig().setFocusMode(FocusMode.AUTO);
-                       goldenEye.getConfig().setTapToFocusEnabled(true);
-                        break;
-                    case 3:
-                        goldenEye.getConfig().setFocusMode(FocusMode.AUTO);
-                        goldenEye.getConfig().setTapToFocusEnabled(true);
-                        break;
+                            //view.setFocusable(false);
+                            goldenEye.getConfig().setFocusMode(FocusMode.FIXED);
+                            goldenEye.getConfig().setTapToFocusEnabled(false);
+                            break;
+                        case 1:
+                            goldenEye.getConfig().setFocusMode(FocusMode.CONTINUOUS_VIDEO);
+                            goldenEye.getConfig().setTapToFocusEnabled(false);
+                            break;
+                        case 2:
+                            goldenEye.getConfig().setFocusMode(FocusMode.AUTO);
+                            goldenEye.getConfig().setTapToFocusEnabled(true);
+                            break;
+                        case 3:
+                            goldenEye.getConfig().setFocusMode(FocusMode.AUTO);
+                            goldenEye.getConfig().setTapToFocusEnabled(true);
+                            break;
+                    }
+                } catch (Exception ex) {
+                    Log.e(ex);
+                    Log.sendLogAsync();
                 }
             }
         });
@@ -220,19 +234,24 @@ public class CameraNativeAccessImpl {
          */
         AndroidNativeUtil.getActivity().runOnUiThread(new Runnable() {
             public void run() {
-                switch (param) {
-                    case 0:
-                        goldenEye.getConfig().setFlashMode(FlashMode.OFF);
-                        break;
-                    case 1:
-                        goldenEye.getConfig().setFlashMode(FlashMode.ON);
-                        break;
-                    case 2:
-                        goldenEye.getConfig().setFlashMode(FlashMode.AUTO);
-                        break;
-                    case 3:
-                        goldenEye.getConfig().setFlashMode(FlashMode.TORCH);
-                        break;
+                try {
+                    switch (param) {
+                        case 0:
+                            goldenEye.getConfig().setFlashMode(FlashMode.OFF);
+                            break;
+                        case 1:
+                            goldenEye.getConfig().setFlashMode(FlashMode.ON);
+                            break;
+                        case 2:
+                            goldenEye.getConfig().setFlashMode(FlashMode.AUTO);
+                            break;
+                        case 3:
+                            goldenEye.getConfig().setFlashMode(FlashMode.TORCH);
+                            break;
+                    }
+                } catch (Exception ex) {
+                    Log.e(ex);
+                    Log.sendLogAsync();
                 }
 
             }
@@ -248,13 +267,18 @@ public class CameraNativeAccessImpl {
     }
 
     public int getFacing() {
-        if (goldenEye.getConfig() != null) {
-            switch (goldenEye.getConfig().getFacing()) {
-                case BACK:
-                    return 0;
-                default:
-                    return 1;
+        try {
+            if (goldenEye.getConfig() != null) {
+                switch (goldenEye.getConfig().getFacing()) {
+                    case BACK:
+                        return 0;
+                    default:
+                        return 1;
+                }
             }
+        } catch (Exception ex) {
+            Log.e(ex);
+            Log.sendLogAsync();
         }
         return 1; // fallback for errors
     }
@@ -291,9 +315,14 @@ public class CameraNativeAccessImpl {
                             t.schedule(new TimerTask() {
                                 @Override
                                 public void run() {
-                                    if (goldenEye.getConfig() != null && width > 0 && height > 0) {
-                                        goldenEye.getConfig().setPreviewSize(new Size(width, height));
-                                        goldenEye.getConfig().setPictureSize(new Size(width, height));
+                                    try {
+                                        if (goldenEye.getConfig() != null && width > 0 && height > 0) {
+                                            goldenEye.getConfig().setPreviewSize(new Size(width, height));
+                                            goldenEye.getConfig().setPictureSize(new Size(width, height));
+                                        }
+                                    } catch (Exception ex) {
+                                        Log.e(ex);
+                                        Log.sendLogAsync();
                                     }
                                 }
                             }, 500L);
@@ -319,9 +348,14 @@ public class CameraNativeAccessImpl {
                             t.schedule(new TimerTask() {
                                 @Override
                                 public void run() {
-                                    if (goldenEye.getConfig() != null && width > 0 && height > 0) {
-                                        goldenEye.getConfig().setPreviewSize(new Size(width, height));
-                                        goldenEye.getConfig().setPictureSize(new Size(width, height));
+                                    try {
+                                        if (goldenEye.getConfig() != null && width > 0 && height > 0) {
+                                            goldenEye.getConfig().setPreviewSize(new Size(width, height));
+                                            goldenEye.getConfig().setPictureSize(new Size(width, height));
+                                        }
+                                    } catch (Exception ex) {
+                                        Log.e(ex);
+                                        Log.sendLogAsync();
                                     }
                                 }
                             }, 500L);
@@ -336,7 +370,12 @@ public class CameraNativeAccessImpl {
         AndroidNativeUtil.getActivity().runOnUiThread(new Runnable() {
             public void run() {
                 //view.
-                goldenEye.getConfig().setPinchToZoomEnabled(param);
+                try {
+                    goldenEye.getConfig().setPinchToZoomEnabled(param);
+                } catch (Exception ex) {
+                    Log.e(ex);
+                    Log.sendLogAsync();
+                }
             }
         });
     }
@@ -344,36 +383,39 @@ public class CameraNativeAccessImpl {
     public void setVideoQuality(final int param) {
         AndroidNativeUtil.getActivity().runOnUiThread(new Runnable() {
             public void run() {
-                switch (param) {
-                    case Constants.VIDEO_QUALITY_480P:
-                        goldenEye.getConfig().setVideoQuality(VideoQuality.HIGH_SPEED_480P);
+                try {
+                    switch (param) {
+                        case Constants.VIDEO_QUALITY_480P:
+                            goldenEye.getConfig().setVideoQuality(VideoQuality.HIGH_SPEED_480P);
 
-                        break;
-                    case Constants.VIDEO_QUALITY_720P:
-                        goldenEye.getConfig().setVideoQuality(VideoQuality.RESOLUTION_720P);
-                        break;
-                    case Constants.VIDEO_QUALITY_1080P:
-                        goldenEye.getConfig().setVideoQuality(VideoQuality.RESOLUTION_1080P);
-                        break;
-                    case Constants.VIDEO_QUALITY_2160P:
-                        goldenEye.getConfig().setVideoQuality(VideoQuality.RESOLUTION_2160P);
-                        break;
-                    case Constants.VIDEO_QUALITY_HIGHEST:
-                        goldenEye.getConfig().setVideoQuality(VideoQuality.HIGH);
-                        break;
-                    case Constants.VIDEO_QUALITY_LOWEST:
-                        goldenEye.getConfig().setVideoQuality(VideoQuality.LOW);
-                        break;
-                    case Constants.VIDEO_QUALITY_QVGA:
-                        goldenEye.getConfig().setVideoQuality(VideoQuality.LOW);
-                        break;
+                            break;
+                        case Constants.VIDEO_QUALITY_720P:
+                            goldenEye.getConfig().setVideoQuality(VideoQuality.RESOLUTION_720P);
+                            break;
+                        case Constants.VIDEO_QUALITY_1080P:
+                            goldenEye.getConfig().setVideoQuality(VideoQuality.RESOLUTION_1080P);
+                            break;
+                        case Constants.VIDEO_QUALITY_2160P:
+                            goldenEye.getConfig().setVideoQuality(VideoQuality.RESOLUTION_2160P);
+                            break;
+                        case Constants.VIDEO_QUALITY_HIGHEST:
+                            goldenEye.getConfig().setVideoQuality(VideoQuality.HIGH);
+                            break;
+                        case Constants.VIDEO_QUALITY_LOWEST:
+                            goldenEye.getConfig().setVideoQuality(VideoQuality.LOW);
+                            break;
+                        case Constants.VIDEO_QUALITY_QVGA:
+                            goldenEye.getConfig().setVideoQuality(VideoQuality.LOW);
+                            break;
 
+                    }
+                } catch (Exception ex) {
+                    Log.e(ex);
+                    Log.sendLogAsync();
                 }
             }
         });
     }
-
-
 
     public void setVideoBitRate(final int param) {
         AndroidNativeUtil.getActivity().runOnUiThread(new Runnable() {
@@ -395,7 +437,12 @@ public class CameraNativeAccessImpl {
         AndroidNativeUtil.getActivity().runOnUiThread(new Runnable() {
             public void run() {
                 //view.
-                goldenEye.getConfig().setPictureQuality(param);
+                try {
+                    goldenEye.getConfig().setPictureQuality(param);
+                } catch (Exception ex) {
+                    Log.e(ex);
+                    Log.sendLogAsync();
+                }
             }
         });
     }
@@ -458,49 +505,71 @@ public class CameraNativeAccessImpl {
     }
 
     public int getPreviewWidth() {
-        return goldenEye.getConfig().getPreviewSize().getWidth();
+        try {
+            return goldenEye.getConfig().getPreviewSize().getWidth();
+        } catch (Exception ex) {
+            Log.e(ex);
+            Log.sendLogAsync();
+        }
+        return 0;
     }
 
     public int getPreviewHeight() {
-        return goldenEye.getConfig().getPreviewSize().getHeight();
+        try {
+            return goldenEye.getConfig().getPreviewSize().getHeight();
+        } catch (Exception ex) {
+            Log.e(ex);
+            Log.sendLogAsync();
+        }
+        return 0;
     }
 
     public int getCaptureWidth() {
-        return goldenEye.getConfig().getVideoSize().getWidth();
+        try {
+            return goldenEye.getConfig().getVideoSize().getWidth();
+        } catch (Exception ex) {
+            Log.e(ex);
+            Log.sendLogAsync();
+        }
+        return 0;
     }
 
     public int getCaptureHeight() {
-        return goldenEye.getConfig().getVideoSize().getHeight();
+        try {
+            return goldenEye.getConfig().getVideoSize().getHeight();
+        } catch (Exception ex) {
+            Log.e(ex);
+            Log.sendLogAsync();
+        }
+        return 0;
     }
 
     public boolean isSupported() {
         return true;
     }
-    
+
     public void setPictureSize(final int w, final int h) {
         AndroidNativeUtil.getActivity().runOnUiThread(new Runnable() {
             public void run() {
-                width = w;
-                height = h;
-                if (goldenEye.getConfig() != null) {
-                    // If you call GoldenEye.config before InitCallback#onReady is dispatched, returned config will be null
-                    goldenEye.getConfig().setPreviewSize(new Size(width, height));
-                    goldenEye.getConfig().setPictureSize(new Size(width, height));
+                try {
+                    width = w;
+                    height = h;
+                    if (goldenEye.getConfig() != null) {
+                        // If you call GoldenEye.config before InitCallback#onReady is dispatched, returned config will be null
+                        goldenEye.getConfig().setPreviewSize(new Size(width, height));
+                        goldenEye.getConfig().setPictureSize(new Size(width, height));
+                    }
+                } catch (Exception ex) {
+                    Log.e(ex);
+                    Log.sendLogAsync();
                 }
             }
         });
     }
 
     /**
-     * CaptureImage=0,
-     CaptureVideo=1,
-     Zoom=2,
-     Focus=3,
-     Flash=4,
-     Crop=5
-     HorizontalViewingAngle=6
-     VerticalViewingAngle=7
-     ToggleFacing=8
+     * CaptureImage=0, CaptureVideo=1, Zoom=2, Focus=3, Flash=4, Crop=5
+     * HorizontalViewingAngle=6 VerticalViewingAngle=7 ToggleFacing=8
      */
     public boolean supportsFeature(int feature) {
         return feature >= 0 && feature < 9;

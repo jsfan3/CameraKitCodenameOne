@@ -443,7 +443,7 @@ public class CameraNativeAccessImpl implements com.codename1.camerakit.impl.Came
     }
 
     public boolean isSupported() {
-        return false;
+        return true;
     }
 
      /**
