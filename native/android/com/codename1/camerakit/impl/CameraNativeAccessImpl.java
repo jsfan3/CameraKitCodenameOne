@@ -114,32 +114,34 @@ public class CameraNativeAccessImpl {
     }
 
     public int getFlash() {
-        try {
-            /*
-            In com.codename1.camerakit.Constants.java:
-            public static final int FLASH_OFF = 0;
-            public static final int FLASH_ON = 1;
-            public static final int FLASH_AUTO = 2;
-            public static final int FLASH_TORCH = 3;
+        if (goldenEye.getConfig() != null) {
+            try {
+                /*
+                In com.codename1.camerakit.Constants.java:
+                public static final int FLASH_OFF = 0;
+                public static final int FLASH_ON = 1;
+                public static final int FLASH_AUTO = 2;
+                public static final int FLASH_TORCH = 3;
 
-             */
+                 */
 
-            switch (goldenEye.getConfig().getFlashMode()) {
-                case ON:
-                    return 1;
-                case OFF:
-                    return 0;
-                case AUTO:
-                    return 2;
-                case TORCH:
-                    return 3;
+                switch (goldenEye.getConfig().getFlashMode()) {
+                    case ON:
+                        return 1;
+                    case OFF:
+                        return 0;
+                    case AUTO:
+                        return 2;
+                    case TORCH:
+                        return 3;
+                }
+                return 0;
+            } catch (Exception ex) {
+                Log.e(ex);
+                Log.sendLogAsync();
             }
-            return 0;
-        } catch (Exception ex) {
-            Log.e(ex);
-            Log.sendLogAsync();
         }
-        return 0;
+        return 1; // this is the default
     }
 
     public void setZoom(final float param) {
